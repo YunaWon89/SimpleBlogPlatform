@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import Markdown from "react-markdown"; 
 import Loader from "../components/Loader";
-import Error from "../components/Error";
+import ErrorPage from "../components/Error";
 import type { Article } from "../types/Article";
 
 export default function ArticlePage() {
@@ -36,8 +36,8 @@ export default function ArticlePage() {
   }, [slug]);
 
   if (loading) return <Loader />;
-  if (error) return <Error message={error} />;
-  if (!article) return <Error message="Article not found." />;
+  if (error) return <ErrorPage message={error} />;
+  if (!article) return <ErrorPage message="Article not found." />;
 
   return (
     <div className="article-page">
