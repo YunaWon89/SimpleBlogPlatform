@@ -71,3 +71,4 @@ export default defineConfig([
   },
 ])
 ```
+https://yunawon89.github.io/SimpleBlogPlatform/

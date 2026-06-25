@@ -1,5 +1,5 @@
 import AppRouter from "./routes/AppRouter";
-import "./App.css"; // <-- Added to load layout stylesheets cleanly
+import "./App.css";
 
 export default function App() {
   return <AppRouter />;
