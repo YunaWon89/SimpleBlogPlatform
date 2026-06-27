@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Article } from "../types/Article";
+import defaultAvatar from "../assets/Icon.png";
 
 interface ArticleCardProps {
   article: Article;
@@ -20,7 +21,14 @@ export default function ArticleCard({ article }: ArticleCardProps) {
       <div className="article-meta">
         <div className="author-info">
           <Link to={`/profile/${article.author.username}`}>
-            <img src="./Icon.png" alt="User" className="author-img" />
+            <img
+              src={article.author.image || defaultAvatar}
+              alt={article.author.username}
+              className="author-img"
+              onError={(e) => {
+                e.currentTarget.src = defaultAvatar;
+              }}
+            />
           </Link>
           <div className="meta-text">
             <Link

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import Markdown from "react-markdown"; 
+import Markdown from "react-markdown";
 import Loader from "../components/Loader";
 import ErrorPage from "../components/Error";
 import type { Article } from "../types/Article";
+import defaultAvatar from "../assets/Icon.png";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -54,9 +55,12 @@ export default function ArticlePage() {
           </h1>
           <div className="author-info">
             <img
-              src={article.author.image}
+              src={article.author.image || defaultAvatar}
               alt={article.author.username}
               className="author-img"
+              onError={(e) => {
+                e.currentTarget.src = defaultAvatar;
+              }}
             />
             <div className="meta-text">
               <span className="author-name" style={{ color: "#fff" }}>
