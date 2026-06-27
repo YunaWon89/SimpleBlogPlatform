@@ -3,7 +3,7 @@ import {
   useContext,
   useEffect,
   useState,
-  ReactNode,
+  type ReactNode,
 } from "react";
 import {
   loginUser,
@@ -11,7 +11,7 @@ import {
   getCurrentUser,
   updateUser,
 } from "../api/auth";
-import { User } from "../types/user";
+import type { User } from "../types/user";
 
 interface AuthContextType {
   user: User | null;
@@ -55,13 +55,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
-  async function login(email: string, password: string) {
-    const res = await loginUser({ email, password });
+ async function login(email: string, password: string) {
+  try {
+    const res = await loginUser(email, password);
 
     localStorage.setItem("token", res.user.token);
-
     setUser(res.user);
+  } catch (err: any) {
+    console.log("LOGIN ERROR DETAILS:", err.response?.data?.errors);
+    throw err;
   }
+}
 
   async function register(
     username: string,

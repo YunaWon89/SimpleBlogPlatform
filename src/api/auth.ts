@@ -22,25 +22,25 @@ export async function registerUser(user: {
   return data;
 }
 
-export async function loginUser(user: {
-  email: string;
-  password: string;
-}) {
+export async function loginUser(email: string, password: string) {
   const res = await fetch(`${API_URL}/users/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ user }),
+    body: JSON.stringify({
+      user: {
+        email,
+        password,
+      },
+    }),
   });
 
-  const data = await res.json();
-
   if (!res.ok) {
-    throw data;
+    throw await res.json();
   }
 
-  return data;
+  return res.json();
 }
 
 export async function getCurrentUser(token: string) {
