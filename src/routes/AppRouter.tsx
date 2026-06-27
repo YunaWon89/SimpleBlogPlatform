@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import ArticlesPage from "../pages/ArticlesPage";
 import ArticlePage from "../pages/ArticlePage";
 import SignInPage from "../pages/SignInPage";
