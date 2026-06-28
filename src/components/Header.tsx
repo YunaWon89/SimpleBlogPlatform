@@ -12,31 +12,65 @@ export default function Header() {
         </Link>
 
         <nav className="nav-links">
-          <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `nav-link ${isActive ? "active" : ""}`
+            }
+          >
             Home
           </NavLink>
 
           {!user ? (
             <>
-              <NavLink to="/sign-in" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+              <NavLink
+                to="/sign-in"
+                className={({ isActive }) =>
+                  `nav-link ${isActive ? "active" : ""}`
+                }
+              >
                 Sign in
               </NavLink>
 
-              <NavLink to="/sign-up" className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+              <NavLink
+                to="/sign-up"
+                className={({ isActive }) =>
+                  `nav-link ${isActive ? "active" : ""}`
+                }
+              >
                 Sign up
               </NavLink>
             </>
           ) : (
             <>
-              <Link to="/profile" className="nav-link">
+              <NavLink
+                to="/new-article"
+                className={({ isActive }) =>
+                  `nav-link ${isActive ? "active" : ""}`
+                }
+              >
+                + New Article
+              </NavLink>
+
+              <NavLink
+                to="/profile"
+                className={({ isActive }) =>
+                  `nav-link ${isActive ? "active" : ""}`
+                }
+              >
                 {user.username}
-              </Link>
+              </NavLink>
 
-              <Link to="/settings" className="nav-link">
+              <NavLink
+                to="/settings"
+                className={({ isActive }) =>
+                  `nav-link ${isActive ? "active" : ""}`
+                }
+              >
                 Settings
-              </Link>
+              </NavLink>
 
-              <button onClick={logout} className="nav-link">
+              <button onClick={logout} className="nav-button">
                 Logout
               </button>
             </>

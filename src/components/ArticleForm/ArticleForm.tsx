@@ -18,7 +18,13 @@ const ArticleForm = () => {
   } = useForm<FormValues>();
 
   const onSubmit = async (data: FormValues) => {
-    const token = localStorage.getItem("token"); // если у тебя хранится токен так
+  try {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("You must be logged in");
+      return;
+    }
 
     const article = {
       title: data.title,
@@ -29,27 +35,39 @@ const ArticleForm = () => {
         : [],
     };
 
-    const res = await fetch("https://api.realworld.io/api/articles", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: token ? `Token ${token}` : "",
-      },
-      body: JSON.stringify({ article }),
-    });
+    const res = await fetch(
+      "https://realworld.habsida.net/api/articles",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${token}`,
+        },
+        body: JSON.stringify({ article }),
+      }
+    );
 
     const result = await res.json();
+    console.log("CREATE ARTICLE RESPONSE:", result);
 
-    if (res.ok) {
-      navigate(`/articles/${result.article.slug}`);
-    } else {
-      console.log(result);
-      alert("Error creating article");
+    if (!res.ok) {
+      alert(
+        result?.errors
+          ? JSON.stringify(result.errors)
+          : "Error creating article"
+      );
+      return;
     }
-  };
+
+    navigate(`/articles/${result.article.slug}`);
+  } catch (error) {
+    console.log(error);
+    alert("Something went wrong");
+  }
+};
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} className="article-form">
       <h2>Create new article</h2>
 
       <div>
@@ -60,13 +78,20 @@ const ArticleForm = () => {
 
       <div>
         <label>Description</label>
-        <input {...register("description", { required: "Description is required" })} />
+        <input
+          {...register("description", {
+            required: "Description is required",
+          })}
+        />
         {errors.description && <p>{errors.description.message}</p>}
       </div>
 
       <div>
         <label>Body</label>
-        <textarea rows={8} {...register("body", { required: "Body is required" })} />
+        <textarea
+          rows={8}
+          {...register("body", { required: "Body is required" })}
+        />
         {errors.body && <p>{errors.body.message}</p>}
       </div>
 

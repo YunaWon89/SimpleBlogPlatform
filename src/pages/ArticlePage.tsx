@@ -11,25 +11,21 @@ export default function ArticlePage() {
   const navigate = useNavigate();
 
   const [article, setArticle] = useState<Article | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchSingleArticle = async () => {
+    const fetchArticle = async () => {
       try {
-        const response = await fetch(
-          `https://realworld.habsida.net/api/articles/${slug}`
+        const res = await fetch(
+          `https://realworld.habsida.net/api/articles/${slug}`,
         );
 
-        if (response.status === 429) {
-          throw new Error("Too Many Requests. Please wait one minute.");
+        if (!res.ok) {
+          throw new Error("Failed to load article");
         }
 
-        if (!response.ok) {
-          throw new Error("Could not load this specific article details.");
-        }
-
-        const data = await response.json();
+        const data = await res.json();
         setArticle(data.article);
       } catch (err: any) {
         setError(err.message);
@@ -38,22 +34,24 @@ export default function ArticlePage() {
       }
     };
 
-    if (slug) fetchSingleArticle();
+    if (slug) fetchArticle();
   }, [slug]);
 
-  const user = JSON.parse(localStorage.getItem("user") || "null");
+  // 🔥 SAFE USER PARSING
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
 
-  const isAuthor =
-    user && article?.author?.username === user.username;
+  // 🔥 AUTHOR CHECK
+  const isAuthor = user?.username === article?.author?.username;
 
+  // ✏️ EDIT
   const handleEdit = () => {
     navigate(`/articles/${slug}/edit`);
   };
 
+  // 🗑 DELETE
   const handleDelete = async () => {
-    const confirmDelete = window.confirm(
-      "Delete this article? This action cannot be undone."
-    );
+    const confirmDelete = window.confirm("Delete this article?");
 
     if (!confirmDelete) return;
 
@@ -66,58 +64,49 @@ export default function ArticlePage() {
         headers: {
           Authorization: token ? `Token ${token}` : "",
         },
-      }
+      },
     );
 
     if (res.ok) {
       navigate("/");
     } else {
-      alert("Failed to delete article");
+      alert("Delete failed");
     }
   };
 
   if (loading) return <Loader />;
   if (error) return <ErrorPage message={error} />;
-  if (!article) return <ErrorPage message="Article not found." />;
+  if (!article) return <ErrorPage message="Article not found" />;
 
   return (
     <div className="article-page">
       <div className="banner" style={{ background: "#333", padding: "2rem 0" }}>
         <div className="container">
-          <h1 style={{ color: "#fff", fontSize: "2.5rem", marginBottom: "1.5rem" }}>
-            {article.title}
-          </h1>
+          <h1 style={{ color: "#fff", fontSize: "2.5rem" }}>{article.title}</h1>
 
           <div className="author-info">
             <img
               src={article.author.image || defaultAvatar}
               alt={article.author.username}
-              className="author-img"
               onError={(e) => {
                 e.currentTarget.src = defaultAvatar;
               }}
             />
 
-            <div className="meta-text">
-              <span className="author-name" style={{ color: "#fff" }}>
-                {article.author.username}
-              </span>
+            <div>
+              <div style={{ color: "#fff" }}>{article.author.username}</div>
 
-              <span className="article-date">
+              <div style={{ color: "#ccc" }}>
                 {new Date(article.createdAt).toDateString()}
-              </span>
+              </div>
             </div>
           </div>
 
-          {/* 🔥 EDIT / DELETE BUTTONS */}
+          {/* 🔥 BUTTONS */}
           {isAuthor && (
             <div style={{ marginTop: "1rem", display: "flex", gap: "10px" }}>
               <button onClick={handleEdit}>Edit</button>
-
-              <button
-                onClick={handleDelete}
-                style={{ color: "red" }}
-              >
+              <button onClick={handleDelete} style={{ color: "red" }}>
                 Delete
               </button>
             </div>
@@ -125,16 +114,8 @@ export default function ArticlePage() {
         </div>
       </div>
 
-      <div
-        className="container"
-        style={{ marginTop: "2rem", paddingBottom: "5rem" }}
-      >
-        <div
-          className="article-content"
-          style={{ fontSize: "1.2rem", lineHeight: "1.8rem" }}
-        >
-          <Markdown>{article.body}</Markdown>
-        </div>
+      <div className="container" style={{ marginTop: "2rem" }}>
+        <Markdown>{article.body}</Markdown>
       </div>
     </div>
   );

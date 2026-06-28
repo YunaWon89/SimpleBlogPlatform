@@ -22,7 +22,7 @@ export default function EditArticlePage() {
     formState: { errors },
   } = useForm<FormValues>();
 
-  // 1. Загружаем статью
+
   useEffect(() => {
     const loadArticle = async () => {
       const res = await fetch(
@@ -32,7 +32,6 @@ export default function EditArticlePage() {
       const data = await res.json();
       const article = data.article;
 
-      // 2. заполняем форму
       setValue("title", article.title);
       setValue("description", article.description);
       setValue("body", article.body);
@@ -47,7 +46,7 @@ export default function EditArticlePage() {
     if (slug) loadArticle();
   }, [slug, setValue]);
 
-  // 3. отправка обновления
+
   const onSubmit = async (data: FormValues) => {
     const token = localStorage.getItem("token");
 
@@ -85,43 +84,44 @@ export default function EditArticlePage() {
 
   if (loading) return <p>Loading...</p>;
 
-  return (
-    <div className="container">
-      <h2>Edit article</h2>
+ return (
+  <form
+    onSubmit={handleSubmit(onSubmit)}
+    className="article-form"
+  >
+    <h2>Edit article</h2>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div>
-          <label>Title</label>
-          <input {...register("title", { required: "Title is required" })} />
-          {errors.title && <p>{errors.title.message}</p>}
-        </div>
-
-        <div>
-          <label>Description</label>
-          <input
-            {...register("description", {
-              required: "Description is required",
-            })}
-          />
-          {errors.description && <p>{errors.description.message}</p>}
-        </div>
-
-        <div>
-          <label>Body</label>
-          <textarea
-            rows={8}
-            {...register("body", { required: "Body is required" })}
-          />
-          {errors.body && <p>{errors.body.message}</p>}
-        </div>
-
-        <div>
-          <label>Tags (comma separated)</label>
-          <input {...register("tagList")} />
-        </div>
-
-        <button type="submit">Update article</button>
-      </form>
+    <div>
+      <label>Title</label>
+      <input {...register("title", { required: "Title is required" })} />
+      {errors.title && <p>{errors.title.message}</p>}
     </div>
-  );
+
+    <div>
+      <label>Description</label>
+      <input
+        {...register("description", {
+          required: "Description is required",
+        })}
+      />
+      {errors.description && <p>{errors.description.message}</p>}
+    </div>
+
+    <div>
+      <label>Body</label>
+      <textarea
+        rows={8}
+        {...register("body", { required: "Body is required" })}
+      />
+      {errors.body && <p>{errors.body.message}</p>}
+    </div>
+
+    <div>
+      <label>Tags (comma separated)</label>
+      <input {...register("tagList")} />
+    </div>
+
+    <button type="submit">Update article</button>
+  </form>
+);
 }
