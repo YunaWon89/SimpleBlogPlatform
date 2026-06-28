@@ -12,8 +12,12 @@ export default function ProfilePage() {
       <h1>Profile</h1>
 
       <div>
-        <p><b>Username:</b> {user.username}</p>
-        <p><b>Email:</b> {user.email}</p>
+        <p>
+          <b>Username:</b> {user.username}
+        </p>
+        <p>
+          <b>Email:</b> {user.email}
+        </p>
 
         {user.image && (
           <img

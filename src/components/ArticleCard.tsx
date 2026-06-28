@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import type { Article } from "../types/Article";
 import defaultAvatar from "../assets/Icon.png";
@@ -7,6 +8,29 @@ interface ArticleCardProps {
 }
 
 export default function ArticleCard({ article }: ArticleCardProps) {
+  const storageKey = `liked-${article.slug}`;
+
+  const [liked, setLiked] = useState(false);
+  const [count, setCount] = useState(article.favoritesCount);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(storageKey);
+    if (stored === "true") {
+      setLiked(true);
+    }
+  }, [storageKey]);
+
+  const toggleFavorite = () => {
+    const newLiked = !liked;
+
+    const newCount = newLiked ? count + 1 : Math.max(count - 1, 0);
+
+    setLiked(newLiked);
+    setCount(newCount);
+
+    localStorage.setItem(storageKey, String(newLiked));
+  };
+
   const formattedDate = new Date(article.createdAt).toLocaleDateString(
     "en-US",
     {
@@ -30,6 +54,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
               }}
             />
           </Link>
+
           <div className="meta-text">
             <Link
               to={`/profile/${article.author.username}`}
@@ -40,12 +65,9 @@ export default function ArticleCard({ article }: ArticleCardProps) {
             <span className="article-date">{formattedDate}</span>
           </div>
         </div>
-        <button
-          className="favorite-btn"
-          disabled
-          style={{ opacity: 0.7, cursor: "pointer" }}
-        >
-          <span className="heart-icon">♥</span> {article.favoritesCount}
+
+        <button className="favorite-btn" onClick={toggleFavorite}>
+          <span style={{ color: liked ? "green" : "gray" }}>♥</span> {count}
         </button>
       </div>
 

@@ -14,6 +14,7 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+
   useEffect(() => {
     const fetchArticle = async () => {
       try {
@@ -37,22 +38,17 @@ export default function ArticlePage() {
     if (slug) fetchArticle();
   }, [slug]);
 
-  // 🔥 SAFE USER PARSING
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
-  // 🔥 AUTHOR CHECK
   const isAuthor = user?.username === article?.author?.username;
 
-  // ✏️ EDIT
   const handleEdit = () => {
     navigate(`/articles/${slug}/edit`);
   };
 
-  // 🗑 DELETE
   const handleDelete = async () => {
     const confirmDelete = window.confirm("Delete this article?");
-
     if (!confirmDelete) return;
 
     const token = localStorage.getItem("token");
@@ -82,7 +78,9 @@ export default function ArticlePage() {
     <div className="article-page">
       <div className="banner" style={{ background: "#333", padding: "2rem 0" }}>
         <div className="container">
-          <h1 style={{ color: "#fff", fontSize: "2.5rem" }}>{article.title}</h1>
+          <h1 style={{ color: "#fff", fontSize: "2.5rem" }}>
+            {article.title}
+          </h1>
 
           <div className="author-info">
             <img
@@ -94,7 +92,9 @@ export default function ArticlePage() {
             />
 
             <div>
-              <div style={{ color: "#fff" }}>{article.author.username}</div>
+              <div style={{ color: "#fff" }}>
+                {article.author.username}
+              </div>
 
               <div style={{ color: "#ccc" }}>
                 {new Date(article.createdAt).toDateString()}
@@ -102,7 +102,6 @@ export default function ArticlePage() {
             </div>
           </div>
 
-          {/* 🔥 BUTTONS */}
           {isAuthor && (
             <div style={{ marginTop: "1rem", display: "flex", gap: "10px" }}>
               <button onClick={handleEdit}>Edit</button>
