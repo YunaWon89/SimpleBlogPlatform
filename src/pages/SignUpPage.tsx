@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
-import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "../api/auth";
 
 type FormData = {
   username: string;
@@ -9,16 +9,26 @@ type FormData = {
 };
 
 export default function SignUpPage() {
-  const { register, handleSubmit } = useForm<FormData>();
-  const { register: registerUser } = useAuth();
+  const {
+    register,
+    handleSubmit,
+  } = useForm<FormData>();
+
   const navigate = useNavigate();
 
   const onSubmit = async (data: FormData) => {
     try {
-      await registerUser(data.username, data.email, data.password);
-      navigate("/");
+      await registerUser({
+        username: data.username,
+        email: data.email,
+        password: data.password,
+      });
+
+      alert("Account created!");
+      navigate("/sign-in");
     } catch (error) {
       console.log(error);
+      alert("Sign up failed");
     }
   };
 
