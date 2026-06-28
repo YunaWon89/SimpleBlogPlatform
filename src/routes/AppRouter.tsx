@@ -6,7 +6,8 @@ import SignUpPage from "../pages/SignUpPage";
 import ProfilePage from "../pages/ProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import ErrorPage from "../components/Error";
-
+import NewArticlePage from "../pages/NewArticlePage";
+import EditArticlePage from "../pages/EditArticlePage";
 import ProtectedRoute from "./ProtectedRoute";
 
 export default function AppRouter() {
@@ -32,6 +33,23 @@ export default function AppRouter() {
         element={
           <ProtectedRoute>
             <SettingsPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/new-article"
+        element={
+          <ProtectedRoute>
+            <NewArticlePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/articles/:slug/edit"
+        element={
+          <ProtectedRoute>
+            <EditArticlePage />
           </ProtectedRoute>
         }
       />
