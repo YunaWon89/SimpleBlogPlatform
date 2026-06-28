@@ -9,7 +9,7 @@ type FormData = {
 };
 
 export default function SettingsPage() {
-  const { user, updateProfile } = useAuth();
+  const { user } = useAuth();
 
   const {
     register,
@@ -23,12 +23,10 @@ export default function SettingsPage() {
   });
 
   const onSubmit = async (data: FormData) => {
-    try {
-      await updateProfile(data);
-      alert("Profile updated!");
-    } catch (err) {
-      console.log(err);
-    }
+    console.log("UPDATED DATA:", data);
+
+    // пока просто заглушка, чтобы не ломать build
+    alert("Settings updated (UI only)");
   };
 
   return (
