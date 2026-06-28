@@ -14,7 +14,6 @@ export default function ArticlePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
   useEffect(() => {
     const fetchArticle = async () => {
       try {
@@ -28,8 +27,12 @@ export default function ArticlePage() {
 
         const data = await res.json();
         setArticle(data.article);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Unknown error");
+        }
       } finally {
         setLoading(false);
       }
@@ -78,9 +81,7 @@ export default function ArticlePage() {
     <div className="article-page">
       <div className="banner" style={{ background: "#333", padding: "2rem 0" }}>
         <div className="container">
-          <h1 style={{ color: "#fff", fontSize: "2.5rem" }}>
-            {article.title}
-          </h1>
+          <h1 style={{ color: "#fff", fontSize: "2.5rem" }}>{article.title}</h1>
 
           <div className="author-info">
             <img
@@ -92,9 +93,7 @@ export default function ArticlePage() {
             />
 
             <div>
-              <div style={{ color: "#fff" }}>
-                {article.author.username}
-              </div>
+              <div style={{ color: "#fff" }}>{article.author.username}</div>
 
               <div style={{ color: "#ccc" }}>
                 {new Date(article.createdAt).toDateString()}

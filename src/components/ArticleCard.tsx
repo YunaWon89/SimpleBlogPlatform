@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { Article } from "../types/Article";
 import defaultAvatar from "../assets/Icon.png";
@@ -10,15 +10,10 @@ interface ArticleCardProps {
 export default function ArticleCard({ article }: ArticleCardProps) {
   const storageKey = `liked-${article.slug}`;
 
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(() => {
+    return localStorage.getItem(storageKey) === "true";
+  });
   const [count, setCount] = useState(article.favoritesCount);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(storageKey);
-    if (stored === "true") {
-      setLiked(true);
-    }
-  }, [storageKey]);
 
   const toggleFavorite = () => {
     const newLiked = !liked;

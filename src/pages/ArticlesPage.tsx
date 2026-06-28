@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import ArticleCard from "../components/ArticleCard";
 import Pagination from "../components/Pagination";
 import Loader from "../components/Loader";
-import Error from "../components/Error";
+import ErrorMessage from "../components/Error";
 import Header from "../components/Header";
 import { fetchArticles } from "../api/Articles";
 import type { Article } from "../types/Article";
@@ -22,20 +22,22 @@ export default function ArticlesPage() {
       setError(null);
       const offset = (currentPage - 1) * articlesPerPage;
 
-      try {
-      
-        const data = await fetchArticles(articlesPerPage, offset);
-        setArticles(data.articles);
-        setTotalArticles(data.articlesCount);
-      } catch (err: any) {
-        if (err.message && err.message.includes("429")) {
-          setError("Too Many Requests. Please wait a minute before retrying.");
-        } else {
-          setError(err.message || "An unexpected error occurred.");
-        }
-      } finally {
-        setLoading(false);
-      }
+   try {
+  const data = await fetchArticles(articlesPerPage, offset);
+  setArticles(data.articles);
+  setTotalArticles(data.articlesCount);
+} catch (err: unknown) {
+  const message =
+    err instanceof Error ? err.message : "An unexpected error occurred.";
+
+  if (message.includes("429")) {
+    setError("Too Many Requests. Please wait a minute before retrying.");
+  } else {
+    setError(message);
+  }
+} finally {
+  setLoading(false);
+}
     };
 
     loadArticles();
@@ -65,7 +67,7 @@ export default function ArticlesPage() {
         </section>
 
         {loading && <Loader />}
-        {error && <Error message={error} />}
+        {error && <ErrorMessage message={error} />}
 
         {!loading && !error && (
           <>

@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState, type ReactNode } from "react";
 
 type User = {
   username: string;
@@ -9,7 +10,7 @@ type User = {
 
 type AuthContextType = {
   user: User | null;
-  setUser: (user: User | null) => void;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   logout: () => void;
   loading: boolean;
 };
@@ -18,22 +19,27 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   setUser: () => {},
   logout: () => {},
-  loading: true,
+  loading: false,
 });
 
-export const AuthProvider = ({ children }: any) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+type AuthProviderProps = {
+  children: ReactNode;
+};
 
-  useEffect(() => {
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(() => {
     const storedUser = localStorage.getItem("user");
 
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    if (!storedUser) {
+      return null;
     }
 
-    setLoading(false);
-  }, []);
+    try {
+      return JSON.parse(storedUser) as User;
+    } catch {
+      return null;
+    }
+  });
 
   const logout = () => {
     localStorage.removeItem("user");
@@ -42,10 +48,19 @@ export const AuthProvider = ({ children }: any) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        logout,
+        loading: false,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+  return useContext(AuthContext);
+}
