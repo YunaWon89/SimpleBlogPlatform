@@ -4,22 +4,26 @@ type User = {
   username: string;
   email: string;
   token: string;
+  image?: string;
 };
 
 type AuthContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
   logout: () => void;
+  loading: boolean;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   setUser: () => {},
   logout: () => {},
+  loading: true,
 });
 
 export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -27,6 +31,8 @@ export const AuthProvider = ({ children }: any) => {
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+
+    setLoading(false);
   }, []);
 
   const logout = () => {
@@ -36,7 +42,7 @@ export const AuthProvider = ({ children }: any) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
+    <AuthContext.Provider value={{ user, setUser, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
