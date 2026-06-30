@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Markdown from "react-markdown";
-import Loader from "../components/Loader";
-import ErrorPage from "../components/Error";
-import type { Article } from "../types/Article";
-import defaultAvatar from "../assets/Icon.png";
+import Loader from "../../components/Loader";
+import ErrorPage from "../../components/Error";
+import type { Article } from "../../types/Article";
+import defaultAvatar from "../../assets/Icon.png";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();

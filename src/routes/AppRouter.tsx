@@ -1,13 +1,13 @@
 import { Routes, Route } from "react-router-dom";
-import ArticlesPage from "../pages/ArticlesPage";
-import ArticlePage from "../pages/ArticlePage";
-import SignInPage from "../pages/SignInPage";
-import SignUpPage from "../pages/SignUpPage";
+import ArticlesPage from "../pages/articles/ArticlesPage";
+import ArticlePage from "../pages/articles/ArticlePage";
+import SignInPage from "../pages/login/SignInPage";
+import SignUpPage from "../pages/registration/SignUpPage";
 import ProfilePage from "../pages/ProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import ErrorPage from "../components/Error";
-import NewArticlePage from "../pages/NewArticlePage";
-import EditArticlePage from "../pages/EditArticlePage";
+import NewArticlePage from "../pages/articles/NewArticlePage";
+import EditArticlePage from "../pages/articles/EditArticlePage";
 import ProtectedRoute from "./ProtectedRoute";
 
 export default function AppRouter() {

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { loginUser } from "../api/auth";
+import { loginUser } from "../../api/auth";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -27,10 +27,7 @@ export default function SignInPage() {
 
   return (
     <form onSubmit={handleLogin}>
-      <input
-        placeholder="email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      <input placeholder="email" onChange={(e) => setEmail(e.target.value)} />
       <input
         placeholder="password"
         type="password"

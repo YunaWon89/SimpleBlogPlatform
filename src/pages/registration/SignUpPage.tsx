@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from "../api/auth";
+import { registerUser } from "../../api/auth";
 
 type FormData = {
   username: string;
@@ -9,10 +9,7 @@ type FormData = {
 };
 
 export default function SignUpPage() {
-  const {
-    register,
-    handleSubmit,
-  } = useForm<FormData>();
+  const { register, handleSubmit } = useForm<FormData>();
 
   const navigate = useNavigate();
 
@@ -42,10 +39,7 @@ export default function SignUpPage() {
           {...register("username", { required: true })}
         />
 
-        <input
-          placeholder="Email"
-          {...register("email", { required: true })}
-        />
+        <input placeholder="Email" {...register("email", { required: true })} />
 
         <input
           placeholder="Password"

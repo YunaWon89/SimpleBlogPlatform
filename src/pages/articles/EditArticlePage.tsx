@@ -22,11 +22,10 @@ export default function EditArticlePage() {
     formState: { errors },
   } = useForm<FormValues>();
 
-
   useEffect(() => {
     const loadArticle = async () => {
       const res = await fetch(
-        `https://realworld.habsida.net/api/articles/${slug}`
+        `https://realworld.habsida.net/api/articles/${slug}`,
       );
 
       const data = await res.json();
@@ -35,17 +34,13 @@ export default function EditArticlePage() {
       setValue("title", article.title);
       setValue("description", article.description);
       setValue("body", article.body);
-      setValue(
-        "tagList",
-        article.tagList ? article.tagList.join(", ") : ""
-      );
+      setValue("tagList", article.tagList ? article.tagList.join(", ") : "");
 
       setLoading(false);
     };
 
     if (slug) loadArticle();
   }, [slug, setValue]);
-
 
   const onSubmit = async (data: FormValues) => {
     const token = localStorage.getItem("token");
@@ -54,9 +49,7 @@ export default function EditArticlePage() {
       title: data.title,
       description: data.description,
       body: data.body,
-      tagList: data.tagList
-        ? data.tagList.split(",").map((t) => t.trim())
-        : [],
+      tagList: data.tagList ? data.tagList.split(",").map((t) => t.trim()) : [],
       slug,
     };
 
@@ -69,7 +62,7 @@ export default function EditArticlePage() {
           Authorization: token ? `Token ${token}` : "",
         },
         body: JSON.stringify({ article }),
-      }
+      },
     );
 
     const result = await res.json();
@@ -84,44 +77,41 @@ export default function EditArticlePage() {
 
   if (loading) return <p>Loading...</p>;
 
- return (
-  <form
-    onSubmit={handleSubmit(onSubmit)}
-    className="article-form"
-  >
-    <h2>Edit article</h2>
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="article-form">
+      <h2>Edit article</h2>
 
-    <div>
-      <label>Title</label>
-      <input {...register("title", { required: "Title is required" })} />
-      {errors.title && <p>{errors.title.message}</p>}
-    </div>
+      <div>
+        <label>Title</label>
+        <input {...register("title", { required: "Title is required" })} />
+        {errors.title && <p>{errors.title.message}</p>}
+      </div>
 
-    <div>
-      <label>Description</label>
-      <input
-        {...register("description", {
-          required: "Description is required",
-        })}
-      />
-      {errors.description && <p>{errors.description.message}</p>}
-    </div>
+      <div>
+        <label>Description</label>
+        <input
+          {...register("description", {
+            required: "Description is required",
+          })}
+        />
+        {errors.description && <p>{errors.description.message}</p>}
+      </div>
 
-    <div>
-      <label>Body</label>
-      <textarea
-        rows={8}
-        {...register("body", { required: "Body is required" })}
-      />
-      {errors.body && <p>{errors.body.message}</p>}
-    </div>
+      <div>
+        <label>Body</label>
+        <textarea
+          rows={8}
+          {...register("body", { required: "Body is required" })}
+        />
+        {errors.body && <p>{errors.body.message}</p>}
+      </div>
 
-    <div>
-      <label>Tags (comma separated)</label>
-      <input {...register("tagList")} />
-    </div>
+      <div>
+        <label>Tags (comma separated)</label>
+        <input {...register("tagList")} />
+      </div>
 
-    <button type="submit">Update article</button>
-  </form>
-);
+      <button type="submit">Update article</button>
+    </form>
+  );
 }
