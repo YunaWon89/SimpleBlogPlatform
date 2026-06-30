@@ -4,7 +4,7 @@ A simple blog platform built with React, TypeScript, and Vite. The application a
 
 ## Live Demo
 
-https://simple-blog-platform-drab.vercel.app/
+https://yunawon89.github.io/SimpleBlogPlatform/
 
 ## Features
 
