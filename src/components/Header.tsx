@@ -5,7 +5,6 @@ import defaultAvatar from "../assets/shiba.jpg";
 import {
   PencilSquareIcon,
   Cog6ToothIcon,
-  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 
 export default function Header() {
