@@ -1,8 +1,15 @@
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import defaultAvatar from "../assets/shiba.jpg";
+
+import {
+  PencilSquareIcon,
+  Cog6ToothIcon,
+  UserCircleIcon,
+} from "@heroicons/react/24/outline";
 
 export default function Header() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <header className="navbar">
@@ -29,16 +36,16 @@ export default function Header() {
                   `nav-link ${isActive ? "active" : ""}`
                 }
               >
-                Sign in
+                Sign In
               </NavLink>
 
               <NavLink
                 to="/sign-up"
                 className={({ isActive }) =>
-                  `nav-link ${isActive ? "active" : ""}`
+                  `signup-btn ${isActive ? "active" : ""}`
                 }
               >
-                Sign up
+                Sign Up
               </NavLink>
             </>
           ) : (
@@ -46,33 +53,40 @@ export default function Header() {
               <NavLink
                 to="/new-article"
                 className={({ isActive }) =>
-                  `nav-link ${isActive ? "active" : ""}`
+                  `nav-link icon-link ${isActive ? "active" : ""}`
                 }
               >
-                + New Article
-              </NavLink>
-
-              <NavLink
-                to="/profile"
-                className={({ isActive }) =>
-                  `nav-link ${isActive ? "active" : ""}`
-                }
-              >
-                {user.username}
+                <PencilSquareIcon className="header-icon" />
+                <span>New Post</span>
               </NavLink>
 
               <NavLink
                 to="/settings"
                 className={({ isActive }) =>
-                  `nav-link ${isActive ? "active" : ""}`
+                  `nav-link icon-link ${isActive ? "active" : ""}`
                 }
               >
-                Settings
+                <Cog6ToothIcon className="header-icon" />
+                <span>Settings</span>
               </NavLink>
 
-              <button onClick={logout} className="nav-button">
-                Logout
-              </button>
+              <NavLink
+  to="/profile"
+  className={({ isActive }) =>
+    `nav-link icon-link ${isActive ? "active" : ""}`
+  }
+>
+  <img
+    src={user.image || defaultAvatar}
+    alt={user.username}
+    className="header-avatar"
+    onError={(e) => {
+      e.currentTarget.src = defaultAvatar;
+    }}
+  />
+
+  <span>{user.username}</span>
+</NavLink>
             </>
           )}
         </nav>

@@ -9,6 +9,7 @@ import ErrorPage from "../components/Error";
 import NewArticlePage from "../pages/articles/NewArticlePage";
 import EditArticlePage from "../pages/articles/EditArticlePage";
 import ProtectedRoute from "./ProtectedRoute";
+import AuthorProfilePage from "../pages/AuthorProfilePage";
 
 export default function AppRouter() {
   return (
@@ -28,6 +29,7 @@ export default function AppRouter() {
         }
       />
 
+<Route path="/profile/:username" element={<AuthorProfilePage />} />
       <Route
         path="/settings"
         element={

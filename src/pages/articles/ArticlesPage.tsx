@@ -3,7 +3,6 @@ import ArticleCard from "../../components/ArticleCard";
 import Pagination from "../../components/Pagination";
 import Loader from "../../components/Loader";
 import ErrorMessage from "../../components/Error";
-import Header from "../../components/Header";
 import { fetchArticles } from "../../api/articles";
 import type { Article } from "../../types/Article";
 
@@ -47,7 +46,7 @@ export default function ArticlesPage() {
 
   return (
     <div>
-      <Header /> {}
+     {}
       <section className="banner">
         <div className="container text-center">
           <h1 className="banner-title" style={{textDecoration: 'underline'}}>Realworld Blog</h1>

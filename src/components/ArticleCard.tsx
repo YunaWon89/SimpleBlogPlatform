@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import type { Article } from "../types/Article";
 import defaultAvatar from "../assets/Icon.png";
 
@@ -8,47 +9,49 @@ interface ArticleCardProps {
 }
 
 export default function ArticleCard({ article }: ArticleCardProps) {
+  const { user } = useAuth();
+
   const storageKey = `liked-${article.slug}`;
 
-  const [liked, setLiked] = useState(() => {
-    return localStorage.getItem(storageKey) === "true";
-  });
-  const [count, setCount] = useState(article.favoritesCount);
+  const [liked, setLiked] = useState(
+    localStorage.getItem(storageKey) === "true"
+  );
 
-  const toggleFavorite = () => {
-    const newLiked = !liked;
+  const [favorites, setFavorites] = useState(article.favoritesCount);
 
-    const newCount = newLiked ? count + 1 : Math.max(count - 1, 0);
+  const handleLike = () => {
+    if (!user) return;
 
-    setLiked(newLiked);
-    setCount(newCount);
+    const newValue = !liked;
 
-    localStorage.setItem(storageKey, String(newLiked));
+    setLiked(newValue);
+    setFavorites((prev) =>
+      newValue ? prev + 1 : Math.max(prev - 1, 0)
+    );
+
+    localStorage.setItem(storageKey, String(newValue));
   };
 
-  const formattedDate = new Date(article.createdAt).toLocaleDateString(
-    "en-US",
-    {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    },
-  );
+  const date = new Date(article.createdAt).toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
 
   return (
     <article className="article-card">
+      {/* HEADER */}
       <div className="article-meta">
-        <div className="author-info">
-          <Link to={`/profile/${article.author.username}`}>
-            <img
-              src={article.author.image || defaultAvatar}
-              alt={article.author.username}
-              className="author-img"
-              onError={(e) => {
-                e.currentTarget.src = defaultAvatar;
-              }}
-            />
-          </Link>
+        {/* LEFT: author */}
+        <div className="article-author">
+          <img
+            src={article.author.image || defaultAvatar}
+            alt={article.author.username}
+            className="author-img"
+            onError={(e) => {
+              e.currentTarget.src = defaultAvatar;
+            }}
+          />
 
           <div className="meta-text">
             <Link
@@ -57,28 +60,37 @@ export default function ArticleCard({ article }: ArticleCardProps) {
             >
               {article.author.username}
             </Link>
-            <span className="article-date">{formattedDate}</span>
+
+            <span className="article-date">{date}</span>
           </div>
         </div>
 
-        <button className="favorite-btn" onClick={toggleFavorite}>
-          <span style={{ color: liked ? "green" : "gray" }}>♥</span> {count}
+        {/* RIGHT: like */}
+        <button
+          className={`favorite-btn ${liked ? "liked" : ""}`}
+          onClick={handleLike}
+          disabled={!user}
+        >
+          ♥ {favorites}
         </button>
       </div>
 
-      <Link to={`/articles/${article.slug}`} className="article-link">
+      {/* BODY */}
+      <Link
+        to={`/articles/${article.slug}`}
+        className="article-link"
+      >
         <h2 className="article-title">{article.title}</h2>
         <p className="article-preview">{article.description}</p>
       </Link>
 
-      <div className="card-footer">
-        <div className="article-tags">
-          {article.tagList.map((tag, i) => (
-            <span key={i} className="tag-outline">
-              {tag}
-            </span>
-          ))}
-        </div>
+      {/* TAGS */}
+      <div className="article-tags">
+        {article.tagList.map((tag) => (
+          <span key={tag} className="tag-outline">
+            {tag}
+          </span>
+        ))}
       </div>
     </article>
   );
