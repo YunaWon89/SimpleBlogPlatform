@@ -496,6 +496,6 @@
 
 .form-actions {
   display: flex;
-  justify-content: flex-end; /* ← ВАЖНО: прижимаем вправо */
+  justify-content: flex-end; 
   margin-top: 24px;
 }

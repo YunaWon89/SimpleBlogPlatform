@@ -66,7 +66,7 @@ export default function AuthorProfilePage() {
 
           <h1>{author?.username}</h1>
 
-          {/* 🔥 BUTTON — ВСЕГДА ЕСТЬ */}
+  
           <button
             className="profile-follow-btn"
             onClick={toggleFollow}

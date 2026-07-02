@@ -40,9 +40,9 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
   return (
     <article className="article-card">
-      {/* HEADER */}
+
       <div className="article-meta">
-        {/* LEFT: author */}
+
         <div className="article-author">
           <img
             src={article.author.image || defaultAvatar}
@@ -65,7 +65,6 @@ export default function ArticleCard({ article }: ArticleCardProps) {
           </div>
         </div>
 
-        {/* RIGHT: like */}
         <button
           className={`favorite-btn ${liked ? "liked" : ""}`}
           onClick={handleLike}
@@ -75,7 +74,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         </button>
       </div>
 
-      {/* BODY */}
+
       <Link
         to={`/articles/${article.slug}`}
         className="article-link"
@@ -84,7 +83,6 @@ export default function ArticleCard({ article }: ArticleCardProps) {
         <p className="article-preview">{article.description}</p>
       </Link>
 
-      {/* TAGS */}
       <div className="article-tags">
         {article.tagList.map((tag) => (
           <span key={tag} className="tag-outline">
