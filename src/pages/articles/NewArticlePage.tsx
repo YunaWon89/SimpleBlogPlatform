@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { createArticle } from "../../api/articles";
 
 type ArticleForm = {
   title: string;
@@ -8,42 +10,56 @@ type ArticleForm = {
   body: string;
 };
 
-const AVAILABLE_TAGS = [
-  "Universal",
-  "pets",
-  "Chinese",
-  "Korean",
-  "Russian",
-  "Dog Breed",
-];
-
 export default function NewArticlePage() {
   const navigate = useNavigate();
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const { user } = useAuth();
+
+  const [tagInput, setTagInput] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ArticleForm>();
 
-  const toggleTag = (tag: string) => {
-    setSelectedTags((prev) =>
-      prev.includes(tag)
-        ? prev.filter((t) => t !== tag)
-        : [...prev, tag]
-    );
+  const addTag = () => {
+    const value = tagInput.trim();
+
+    if (!value) return;
+
+    if (tags.includes(value)) {
+      setTagInput("");
+      return;
+    }
+
+    setTags((prev) => [...prev, value]);
+    setTagInput("");
   };
 
-  const onSubmit = async (data: ArticleForm) => {
-    const payload = {
-      ...data,
-      tagList: selectedTags,
-    };
+  const removeTag = (tag: string) => {
+    setTags((prev) => prev.filter((t) => t !== tag));
+  };
 
-    console.log(payload);
-    alert("Article published (UI only)");
-    navigate("/");
+  const onSubmit = async (formData: ArticleForm) => {
+    if (!user) return;
+
+    try {
+      const data = await createArticle(user.token, {
+        title: formData.title,
+        description: formData.description,
+        body: formData.body,
+        tagList: tags,
+      });
+
+      reset();
+
+      navigate(`/articles/${data.article.slug}`);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to publish article.");
+    }
   };
 
   return (
@@ -51,73 +67,81 @@ export default function NewArticlePage() {
       <h1 className="form-title">New Post</h1>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* TITLE */}
         <div className="form-group">
           <input
             className="form-input"
-            placeholder="Title"
-            {...register("title", { required: "Title is required" })}
+            placeholder="Article Title"
+            {...register("title", {
+              required: "Title is required.",
+            })}
           />
+
           {errors.title && (
             <p className="form-error">{errors.title.message}</p>
           )}
         </div>
 
-
         <div className="form-group">
           <input
             className="form-input"
-            placeholder="Short description"
+            placeholder="What's this article about?"
             {...register("description", {
-              required: "Description is required",
+              required: "Description is required.",
             })}
           />
+
           {errors.description && (
             <p className="form-error">{errors.description.message}</p>
           )}
         </div>
 
-
         <div className="form-group">
           <textarea
             className="form-textarea"
-            placeholder="Input your text"
-            {...register("body", { required: "Text is required" })}
+            placeholder="Write your article..."
+            rows={8}
+            {...register("body", {
+              required: "Article text is required.",
+            })}
           />
+
           {errors.body && (
             <p className="form-error">{errors.body.message}</p>
           )}
         </div>
 
-
         <div className="form-group">
-          <p style={{ marginBottom: 8, fontSize: 14, color: "#666" }}>
-          
-          </p>
+          <input
+            className="form-input"
+            placeholder="Enter tag"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addTag();
+              }
+            }}
+          />
 
-          <div className="tags-select">
-            {AVAILABLE_TAGS.map((tag) => (
-              <button
-                type="button"
+          <div className="article-tags" style={{ marginTop: "12px" }}>
+            {tags.map((tag) => (
+              <span
                 key={tag}
-                onClick={() => toggleTag(tag)}
-                className={`tag-btn ${
-                  selectedTags.includes(tag) ? "active" : ""
-                }`}
+                className="tag-outline"
+                onClick={() => removeTag(tag)}
+                style={{ cursor: "pointer" }}
               >
-                {tag}
-              </button>
+                ✕ {tag}
+              </span>
             ))}
           </div>
         </div>
 
-  
-        <div className="newpost-footer">
-          <div />
-
+        <div className="form-actions">
           <button
-            type="submit"
             className="btn-publish"
+            type="submit"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Publishing..." : "Publish Article"}

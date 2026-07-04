@@ -1,11 +1,18 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 
 type User = {
   username: string;
   email: string;
   token: string;
   image?: string;
+  bio?: string;
 };
 
 type AuthContextType = {
@@ -41,9 +48,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   });
 
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+
+      if (user.token) {
+        localStorage.setItem("token", user.token);
+      }
+    } else {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+    }
+  }, [user]);
+
   const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
     setUser(null);
   };
 

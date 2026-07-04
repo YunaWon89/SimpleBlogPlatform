@@ -5,6 +5,7 @@ import Loader from "../../components/Loader";
 import ErrorMessage from "../../components/Error";
 import { fetchArticles } from "../../api/articles";
 import type { Article } from "../../types/Article";
+import { fetchTags } from "../../api/articles";
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -12,6 +13,7 @@ export default function ArticlesPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalArticles, setTotalArticles] = useState<number>(0);
+  const [tags, setTags] = useState<string[]>([]);
 
   const articlesPerPage = 5;
 
@@ -25,6 +27,8 @@ export default function ArticlesPage() {
   const data = await fetchArticles(articlesPerPage, offset);
   setArticles(data.articles);
   setTotalArticles(data.articlesCount);
+  const tagData = await fetchTags();
+setTags(tagData);
 } catch (err: unknown) {
   const message =
     err instanceof Error ? err.message : "An unexpected error occurred.";
@@ -56,13 +60,13 @@ export default function ArticlesPage() {
       <main className="container main-content">
         <section className="tags-box">
           <p className="tags-title">Popular tags</p>
-          <div className="tags-list">
-            <span className="tag-pill">one</span>
-            <span className="tag-pill">something</span>
-            <span className="tag-pill">chinese</span>
-            <span className="tag-pill">english</span>
-            <span className="tag-pill">french</span>
-          </div>
+         <div className="tags-list">
+  {tags.slice(0, 5).map((tag) => (
+    <span key={tag} className="tag-pill">
+      {tag}
+    </span>
+  ))}
+</div>
         </section>
 
         {loading && <Loader />}

@@ -1,117 +1,185 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { updateArticle } from "../../api/articles";
 
-type FormValues = {
+type ArticleForm = {
   title: string;
   description: string;
   body: string;
-  tagList: string;
 };
 
 export default function EditArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
+
+  const [tagInput, setTagInput] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
 
   const {
     register,
     handleSubmit,
     setValue,
-    formState: { errors },
-  } = useForm<FormValues>();
+    formState: { errors, isSubmitting },
+  } = useForm<ArticleForm>();
 
   useEffect(() => {
     const loadArticle = async () => {
-      const res = await fetch(
-        `https://realworld.habsida.net/api/articles/${slug}`,
-      );
+      try {
+        const response = await fetch(
+          `https://realworld.habsida.net/api/articles/${slug}`
+        );
 
-      const data = await res.json();
-      const article = data.article;
+        const data = await response.json();
 
-      setValue("title", article.title);
-      setValue("description", article.description);
-      setValue("body", article.body);
-      setValue("tagList", article.tagList ? article.tagList.join(", ") : "");
+        setValue("title", data.article.title);
+        setValue("description", data.article.description);
+        setValue("body", data.article.body);
 
-      setLoading(false);
+        setTags(data.article.tagList || []);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    if (slug) loadArticle();
+    if (slug) {
+      loadArticle();
+    }
   }, [slug, setValue]);
 
-  const onSubmit = async (data: FormValues) => {
-    const token = localStorage.getItem("token");
+  const addTag = () => {
+    const value = tagInput.trim();
 
-    const article = {
-      title: data.title,
-      description: data.description,
-      body: data.body,
-      tagList: data.tagList ? data.tagList.split(",").map((t) => t.trim()) : [],
-      slug,
-    };
+    if (!value) return;
 
-    const res = await fetch(
-      `https://realworld.habsida.net/api/articles/${slug}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Token ${token}` : "",
-        },
-        body: JSON.stringify({ article }),
-      },
-    );
+    if (tags.includes(value)) {
+      setTagInput("");
+      return;
+    }
 
-    const result = await res.json();
+    setTags((prev) => [...prev, value]);
+    setTagInput("");
+  };
 
-    if (res.ok) {
-      navigate(`/articles/${result.article.slug}`);
-    } else {
-      alert("Error updating article");
-      console.log(result);
+  const removeTag = (tag: string) => {
+    setTags((prev) => prev.filter((t) => t !== tag));
+  };
+
+  const onSubmit = async (formData: ArticleForm) => {
+    if (!user || !slug) return;
+
+    try {
+      const data = await updateArticle(user.token, slug, {
+        title: formData.title,
+        description: formData.description,
+        body: formData.body,
+        tagList: tags,
+      });
+
+      navigate(`/articles/${data.article.slug}`);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update article.");
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) {
+    return <p className="text-center">Loading...</p>;
+  }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="article-form">
-      <h2>Edit article</h2>
+    <div className="form-card">
+      <h1 className="form-title">Edit Article</h1>
 
-      <div>
-        <label>Title</label>
-        <input {...register("title", { required: "Title is required" })} />
-        {errors.title && <p>{errors.title.message}</p>}
-      </div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="form-group">
+          <input
+            className="form-input"
+            placeholder="Article Title"
+            {...register("title", {
+              required: "Title is required.",
+            })}
+          />
 
-      <div>
-        <label>Description</label>
-        <input
-          {...register("description", {
-            required: "Description is required",
-          })}
-        />
-        {errors.description && <p>{errors.description.message}</p>}
-      </div>
+          {errors.title && (
+            <p className="form-error">{errors.title.message}</p>
+          )}
+        </div>
 
-      <div>
-        <label>Body</label>
-        <textarea
-          rows={8}
-          {...register("body", { required: "Body is required" })}
-        />
-        {errors.body && <p>{errors.body.message}</p>}
-      </div>
+        <div className="form-group">
+          <input
+            className="form-input"
+            placeholder="What's this article about?"
+            {...register("description", {
+              required: "Description is required.",
+            })}
+          />
 
-      <div>
-        <label>Tags (comma separated)</label>
-        <input {...register("tagList")} />
-      </div>
+          {errors.description && (
+            <p className="form-error">{errors.description.message}</p>
+          )}
+        </div>
 
-      <button type="submit">Update article</button>
-    </form>
+        <div className="form-group">
+          <textarea
+            className="form-textarea"
+            rows={8}
+            placeholder="Write your article..."
+            {...register("body", {
+              required: "Article text is required.",
+            })}
+          />
+
+          {errors.body && (
+            <p className="form-error">{errors.body.message}</p>
+          )}
+        </div>
+
+        <div className="form-group">
+          <input
+            className="form-input"
+            placeholder="Enter tag"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addTag();
+              }
+            }}
+          />
+
+          <div
+            className="article-tags"
+            style={{ marginTop: "12px" }}
+          >
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="tag-outline"
+                style={{ cursor: "pointer" }}
+                onClick={() => removeTag(tag)}
+              >
+                ✕ {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div className="form-actions">
+          <button
+            className="btn-publish"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Updating..." : "Update Article"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

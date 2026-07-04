@@ -5,6 +5,7 @@ import Loader from "../../components/Loader";
 import ErrorPage from "../../components/Error";
 import type { Article } from "../../types/Article";
 import defaultAvatar from "../../assets/Icon.png";
+import { favoriteArticle, unfavoriteArticle } from "../../api/articles";
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,7 +19,7 @@ export default function ArticlePage() {
     const fetchArticle = async () => {
       try {
         const res = await fetch(
-          `https://realworld.habsida.net/api/articles/${slug}`,
+          `https://realworld.habsida.net/api/articles/${slug}`
         );
 
         if (!res.ok) {
@@ -46,6 +47,35 @@ export default function ArticlePage() {
 
   const isAuthor = user?.username === article?.author?.username;
 
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [favoritesCount, setFavoritesCount] = useState(0);
+
+  useEffect(() => {
+    if (article) {
+      setIsFavorited(article.favorited);
+      setFavoritesCount(article.favoritesCount);
+    }
+  }, [article]);
+
+  const handleFavorite = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !slug) return;
+
+    try {
+      if (isFavorited) {
+        await unfavoriteArticle(slug, token);
+        setIsFavorited(false);
+        setFavoritesCount((c) => c - 1);
+      } else {
+        await favoriteArticle(slug, token);
+        setIsFavorited(true);
+        setFavoritesCount((c) => c + 1);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleEdit = () => {
     navigate(`/articles/${slug}/edit`);
   };
@@ -63,7 +93,7 @@ export default function ArticlePage() {
         headers: {
           Authorization: token ? `Token ${token}` : "",
         },
-      },
+      }
     );
 
     if (res.ok) {
@@ -79,11 +109,13 @@ export default function ArticlePage() {
 
   return (
     <div className="article-page">
-      <div className="banner" style={{ background: "#333", padding: "2rem 0" }}>
+      <div className="article-banner">
         <div className="container">
-          <h1 style={{ color: "#fff", fontSize: "2.5rem" }}>{article.title}</h1>
+          <h1 style={{ color: "#fff", fontSize: "2.5rem" }}>
+            {article.title}
+          </h1>
 
-          <div className="author-info">
+          <div className="article-banner-meta">
             <img
               src={article.author.image || defaultAvatar}
               alt={article.author.username}
@@ -100,20 +132,58 @@ export default function ArticlePage() {
               </div>
             </div>
           </div>
-
-          {isAuthor && (
-            <div style={{ marginTop: "1rem", display: "flex", gap: "10px" }}>
-              <button onClick={handleEdit}>Edit</button>
-              <button onClick={handleDelete} style={{ color: "red" }}>
-                Delete
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
       <div className="container" style={{ marginTop: "2rem" }}>
         <Markdown>{article.body}</Markdown>
+
+        {article.tagList && article.tagList.length > 0 && (
+          <div className="article-tags" style={{ marginTop: "1.5rem" }}>
+            {article.tagList.map((tag) => (
+              <span key={tag} className="tag-outline">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        <div className="article-footer">
+          <div className="article-footer-author">
+            <img
+              src={article.author.image || defaultAvatar}
+              alt={article.author.username}
+              className="author-img"
+              onError={(e) => {
+                e.currentTarget.src = defaultAvatar;
+              }}
+            />
+            <div>
+              <div className="author-name">{article.author.username}</div>
+              <div className="article-date">
+                {new Date(article.createdAt).toDateString()}
+              </div>
+            </div>
+
+            {!isAuthor && (
+              <button className="favorite-btn" onClick={handleFavorite}>
+                {isFavorited ? "♥ Unfavorite" : "♡ Favorite article"} (
+                {favoritesCount})
+              </button>
+            )}
+          </div>
+
+          {isAuthor && (
+            <div className="article-actions">
+              <button className="btn-edit" onClick={handleEdit}>
+                Edit
+              </button>
+              <button className="btn-delete" onClick={handleDelete}>
+                Delete
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

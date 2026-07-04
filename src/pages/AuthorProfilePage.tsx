@@ -3,31 +3,61 @@ import { useParams } from "react-router-dom";
 import ArticleCard from "../components/ArticleCard";
 import Loader from "../components/Loader";
 import ErrorPage from "../components/Error";
+import { followUser, unfollowUser } from "../api/auth";
 import type { Article } from "../types/Article";
 import defaultAvatar from "../assets/Icon.png";
+import { useAuth } from "../context/AuthContext";
+
+type Profile = {
+  username: string;
+  bio: string | null;
+  image: string;
+  following: boolean;
+};
 
 export default function AuthorProfilePage() {
-  const { username } = useParams();
-
+  const { username } = useParams<{ username: string }>();
+const { user } = useAuth();
+const isOwnProfile = user?.username === username;
   const [articles, setArticles] = useState<Article[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   useEffect(() => {
+    if (!username) return;
+
     const load = async () => {
+      setLoading(true);
+      setError("");
+
       try {
-        setLoading(true);
+        const token = localStorage.getItem("token");
 
-        const res = await fetch(
-          `https://realworld.habsida.net/api/articles?author=${username}`
-        );
+        const [articlesRes, profileRes] = await Promise.all([
+          fetch(
+            `https://realworld.habsida.net/api/articles?author=${username}`
+          ),
+          fetch(`https://realworld.habsida.net/api/profiles/${username}`, {
+            headers: token ? { Authorization: `Token ${token}` } : {},
+          }),
+        ]);
 
-        const data = await res.json();
+        if (!articlesRes.ok || !profileRes.ok) {
+          throw new Error("Failed to load profile");
+        }
 
-        setArticles(data.articles);
+        const articlesData = await articlesRes.json();
+        const profileData = await profileRes.json();
+
+        setArticles(articlesData.articles);
+        setProfile(profileData.profile);
+        setIsFollowing(profileData.profile.following);
       } catch (e) {
+        console.error(e);
         setError("Failed to load");
       } finally {
         setLoading(false);
@@ -37,42 +67,55 @@ export default function AuthorProfilePage() {
     load();
   }, [username]);
 
-  useEffect(() => {
-    setIsFollowing(
-      localStorage.getItem(`follow-${username}`) === "true"
-    );
-  }, [username]);
+  const toggleFollow = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !username || followLoading) return;
 
-  const toggleFollow = () => {
-    const newValue = !isFollowing;
-    setIsFollowing(newValue);
-    localStorage.setItem(`follow-${username}`, String(newValue));
+    setFollowLoading(true);
+
+    try {
+      if (isFollowing) {
+        await unfollowUser(username, token);
+        setIsFollowing(false);
+      } else {
+        await followUser(username, token);
+        setIsFollowing(true);
+      }
+    } catch (err) {
+      console.error("Follow error:", err);
+    } finally {
+      setFollowLoading(false);
+    }
   };
 
   if (loading) return <Loader />;
   if (error) return <ErrorPage message={error} />;
-
-  const author = articles[0]?.author;
+  if (!profile) return <ErrorPage message="Author not found" />;
 
   return (
     <>
       <section className="profile-banner">
         <div className="container profile-banner-content">
           <img
-            src={author?.image || defaultAvatar}
+            src={profile.image || defaultAvatar}
             className="profile-avatar"
-            alt="avatar"
+            alt={profile.username}
+            onError={(e) => {
+              e.currentTarget.src = defaultAvatar;
+            }}
           />
 
-          <h1>{author?.username}</h1>
+          <h1>{profile.username}</h1>
 
-  
-          <button
-            className="profile-follow-btn"
-            onClick={toggleFollow}
-          >
-            {isFollowing ? "Unfollow" : "Follow"}
-          </button>
+          {!isOwnProfile && (
+  <button
+    className="profile-follow-btn"
+    onClick={toggleFollow}
+    disabled={followLoading}
+  >
+    {followLoading ? "..." : isFollowing ? "Unfollow" : "Follow"}
+  </button>
+)}
         </div>
       </section>
 
@@ -82,9 +125,7 @@ export default function AuthorProfilePage() {
         </div>
 
         {articles.length === 0 ? (
-          <p className="empty-profile">
-            No articles yet
-          </p>
+          <p className="empty-profile">No articles yet</p>
         ) : (
           <section className="articles-list">
             {articles.map((article) => (

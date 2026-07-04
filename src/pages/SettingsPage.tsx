@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../context/AuthContext";
+import { updateUser } from "../api/auth";
 
 type SettingsForm = {
   username: string;
@@ -11,7 +12,7 @@ type SettingsForm = {
 };
 
 export default function SettingsPage() {
-  const { user, logout } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const navigate = useNavigate();
 
   const {
@@ -28,11 +29,30 @@ export default function SettingsPage() {
     },
   });
 
-  const onSubmit = async (data: SettingsForm) => {
+  const onSubmit = async (formData: SettingsForm) => {
     if (!user) return;
 
-    console.log(data);
-    alert("Settings updated (UI only)");
+    try {
+   const data = await updateUser(user.token, {
+  username: formData.username,
+  email: formData.email,
+  bio: formData.bio,
+  image: formData.image,
+  password: formData.password || undefined,
+});
+
+setUser(data.user);
+
+navigate("/profile");
+
+      setUser(data.user);
+
+
+      navigate("/profile");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update settings.");
+    }
   };
 
   const handleLogout = () => {
@@ -79,7 +99,7 @@ export default function SettingsPage() {
         <div className="form-group">
           <textarea
             className="form-textarea"
-            placeholder="Input your bio"
+            placeholder="Short bio about you"
             {...register("bio")}
           />
         </div>
@@ -87,32 +107,20 @@ export default function SettingsPage() {
         <div className="form-group">
           <input
             className="form-input"
-            placeholder="Avatar image (URL)"
-            {...register("image", {
-              pattern: {
-                value: /^https?:\/\/.+/i,
-                message: "Invalid URL.",
-              },
-            })}
+            placeholder="URL of profile picture"
+            {...register("image")}
           />
-          {errors.image && (
-            <p className="form-error">{errors.image.message}</p>
-          )}
         </div>
 
         <div className="form-group">
           <input
             className="form-input"
             type="password"
-            placeholder="Password"
+            placeholder="New Password"
             {...register("password", {
               minLength: {
                 value: 6,
                 message: "Minimum 6 characters.",
-              },
-              maxLength: {
-                value: 40,
-                message: "Maximum 40 characters.",
               },
             })}
           />
@@ -132,9 +140,14 @@ export default function SettingsPage() {
         </div>
       </form>
 
-  
+      <hr style={{ margin: "30px 0" }} />
+
       <div className="logout-wrapper">
-        <button type="button" onClick={handleLogout}>
+        <button
+          type="button"
+          className="btn-logout"
+          onClick={handleLogout}
+        >
           Or click here to logout
         </button>
       </div>
