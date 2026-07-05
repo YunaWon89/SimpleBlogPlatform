@@ -70,19 +70,17 @@
   object-fit: cover;
 }
 
-.signup-btn {
-  padding: 6px 12px;
-  border: 1px solid var(--primary-color);
-  border-radius: 4px;
-  color: var(--primary-color);
+.signup-btn1 {
+  color: rgba(0, 0, 0, 0.3);
+  font-size: 0.95rem;
   text-decoration: none;
-  transition: 0.2s;
 }
 
-.signup-btn:hover,
+.signup-btn:hover {
+  color: rgba(0, 0, 0, 0.733);
+}
 .signup-btn.active {
-  background: var(--primary-color);
-  color: #fff;
+color: rgba(0, 0, 0, 0.849);
 }
 
 .banner {

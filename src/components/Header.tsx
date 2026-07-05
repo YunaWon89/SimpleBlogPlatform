@@ -41,7 +41,7 @@ export default function Header() {
               <NavLink
                 to="/sign-up"
                 className={({ isActive }) =>
-                  `signup-btn ${isActive ? "active" : ""}`
+                  `signup-btn1 ${isActive ? "active" : ""}`
                 }
               >
                 Sign Up
