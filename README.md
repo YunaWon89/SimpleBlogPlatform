@@ -4,7 +4,7 @@ A simple blog platform built with React, TypeScript, and Vite. The application a
 
 ## Live Demo
 
-https://yunawon89.github.io/SimpleBlogPlatform/
+https://simple-blog-platform-eosin.vercel.app/
 
 ## Features
 
